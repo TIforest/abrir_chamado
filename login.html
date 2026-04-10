@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TI Help Desk — Login Administrativo</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c14;
+    --bg2: #0d1320;
+    --card: #131c2e;
+    --border: #1e2d47;
+    --border2: #263552;
+    --accent: #2d7aff;
+    --accent-glow: rgba(45,122,255,0.25);
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #4a5568;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Space Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(45,122,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45,122,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+  .orb {
+    position: fixed;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .orb1 { top: -150px; left: -150px; background: radial-gradient(circle, rgba(45,122,255,0.1) 0%, transparent 70%); }
+  .orb2 { bottom: -150px; right: -150px; background: radial-gradient(circle, rgba(96,165,250,0.07) 0%, transparent 70%); }
+
+  .login-wrap {
+    position: relative; z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+    animation: fadeIn 0.5s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text3);
+    font-size: 13px;
+    text-decoration: none;
+    margin-bottom: 28px;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--text2); }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 40px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(45,122,255,0.5), transparent);
+  }
+  .card-icon {
+    width: 52px; height: 52px;
+    background: rgba(45,122,255,0.12);
+    border: 1px solid rgba(45,122,255,0.2);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    margin-bottom: 22px;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 32px;
+  }
+
+  .field { margin-bottom: 16px; }
+  label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+  input {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 11px 14px;
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: all 0.2s;
+  }
+  input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  input::placeholder { color: var(--text3); }
+
+  .error-msg {
+    display: none;
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #f87171;
+    margin-bottom: 16px;
+    align-items: center;
+    gap: 8px;
+  }
+  .error-msg.show { display: flex; }
+
+  .btn-login {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .btn-login:hover {
+    background: #1a6ef0;
+    box-shadow: 0 6px 20px rgba(45,122,255,0.35);
+    transform: translateY(-1px);
+  }
+
+  .hint {
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.7;
+  }
+  .hint span { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<div class="login-wrap">
+  <a href="index.html" class="back-link">
+    ← Voltar ao formulário
+  </a>
+  <div class="card">
+    <div class="card-icon">🔐</div>
+    <h1>Acesso Administrativo</h1>
+    <p class="subtitle">Entre com suas credenciais de TI para acessar o painel.</p>
+
+    <div class="error-msg" id="errorMsg">
+      ⚠️ Usuário ou senha incorretos.
+    </div>
+
+    <div class="field">
+      <label>Usuário</label>
+      <input type="text" id="usuario" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" id="senha" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <button class="btn-login" onclick="login()">Entrar no painel</button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+
+  function login() {
+    const u = document.getElementById('usuario').value.trim();
+    const s = document.getElementById('senha').value;
+    const err = document.getElementById('errorMsg');
+
+    // ======================================================
+    const USUARIO_CORRETO = 'admin';   // ← troque o usuário
+    const SENHA_CORRETA   = 'TI@2026#'; // ← troque a senha
+    // ======================================================
+    if (u === USUARIO_CORRETO && s === SENHA_CORRETA) {
+      sessionStorage.setItem('admin_logged', '1');
+      window.location.href = 'admin.html';
+    } else {
+      err.classList.add('show');
+      setTimeout(() => err.classList.remove('show'), 3000);
+    }
+  }
+</script>
+</body>
+</html>
