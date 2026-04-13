@@ -7,127 +7,54 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #080c14;
-    --bg2: #0d1320;
-    --bg3: #111827;
-    --card: #131c2e;
-    --card2: #1a2540;
-    --border: #1e2d47;
-    --border2: #263552;
-    --accent: #2d7aff;
-    --accent2: #1a5cd4;
-    --accent-glow: rgba(45,122,255,0.2);
-    --green: #10b981;
-    --yellow: #f59e0b;
-    --red: #ef4444;
-    --purple: #8b5cf6;
-    --text: #e2e8f0;
-    --text2: #94a3b8;
-    --text3: #4a5568;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Space Grotesk', sans-serif;
+    --bg: #080c14; --bg2: #0d1320; --bg3: #111827;
+    --card: #131c2e; --card2: #1a2540;
+    --border: #1e2d47; --border2: #263552;
+    --accent: #2d7aff; --accent2: #1a5cd4; --accent-glow: rgba(45,122,255,0.2);
+    --green: #10b981; --yellow: #f59e0b; --red: #ef4444; --purple: #8b5cf6;
+    --text: #e2e8f0; --text2: #94a3b8; --text3: #4a5568;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-      linear-gradient(rgba(45,122,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(45,122,255,0.025) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none; z-index: 0;
-  }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(45,122,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(45,122,255,0.025) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
 
   /* Sidebar */
-  .sidebar {
-    position: fixed;
-    left: 0; top: 0; bottom: 0;
-    width: 220px;
-    background: var(--bg2);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    z-index: 50;
-  }
-  .sidebar-header {
-    padding: 20px 20px 16px;
-    border-bottom: 1px solid var(--border);
-  }
-  .logo {
-    display: flex; align-items: center; gap: 10px;
-    font-size: 14px; font-weight: 600;
-  }
-  .logo-icon {
-    width: 28px; height: 28px;
-    background: var(--accent);
-    border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; flex-shrink: 0;
-  }
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 220px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 50; }
+  .sidebar-header { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
+  .logo-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
   .logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; margin-top: 1px; }
-
   .nav { flex: 1; padding: 12px 10px; }
-  .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 12px;
-    border-radius: 8px;
-    font-size: 13px; font-weight: 500;
-    color: var(--text2);
-    cursor: pointer;
-    transition: all 0.15s;
-    margin-bottom: 2px;
-  }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; transition: all 0.15s; margin-bottom: 2px; }
   .nav-item:hover { background: var(--border); color: var(--text); }
   .nav-item.active { background: rgba(45,122,255,0.12); color: var(--accent); }
   .nav-item .icon { font-size: 15px; width: 20px; text-align: center; }
+  .nav-badge { margin-left: auto; background: var(--accent); color: #fff; font-size: 10px; font-family: var(--mono); font-weight: 600; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center; display: none; }
+  .nav-badge.show { display: block; }
+  .nav-badge.yellow { background: var(--yellow); color: #000; }
+  .sidebar-footer { padding: 12px 10px; border-top: 1px solid var(--border); }
 
-  .sidebar-footer {
-    padding: 12px 10px;
-    border-top: 1px solid var(--border);
-  }
-  .sidebar-footer .nav-item { color: var(--text3); }
+  /* Técnico logado */
+  .tecnico-info { padding: 10px 12px; margin-bottom: 4px; background: rgba(45,122,255,0.06); border: 1px solid rgba(45,122,255,0.15); border-radius: 8px; }
+  .tecnico-label { font-size: 10px; color: var(--text3); font-family: var(--mono); letter-spacing: 0.06em; }
+  .tecnico-nome { font-size: 13px; font-weight: 600; color: var(--accent); }
 
   /* Main */
   .main { margin-left: 220px; min-height: 100vh; position: relative; z-index: 1; }
-  .topbar {
-    height: 58px;
-    background: rgba(8,12,20,0.8);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 28px;
-    position: sticky; top: 0; z-index: 40;
-  }
+  .topbar { height: 58px; background: rgba(8,12,20,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 40; }
   .page-title { font-size: 16px; font-weight: 600; }
   .topbar-right { display: flex; align-items: center; gap: 12px; }
-  .badge-count {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 12px; color: var(--text2);
-    font-family: var(--mono);
-  }
+  .badge-count { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); font-family: var(--mono); }
   .dot { width: 8px; height: 8px; border-radius: 50%; }
   .dot.open { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
   .dot.active { background: var(--yellow); }
   .dot.done { background: var(--green); }
-
   .content { padding: 28px; }
 
-  /* Stats row */
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    margin-bottom: 24px;
-  }
-  .stat-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px 20px;
-  }
+  /* Stats */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
   .stat-label { font-size: 11px; font-family: var(--mono); color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
   .stat-val { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
   .stat-val.blue { color: var(--accent); }
@@ -136,108 +63,41 @@
   .stat-val.all { color: var(--text); }
 
   /* Panel */
-  .panel {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    overflow: hidden;
-    display: none;
-  }
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; display: none; }
   .panel.active { display: block; }
-  .panel-header {
-    padding: 18px 22px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    flex-wrap: wrap;
-  }
+  .panel-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   .panel-title { font-size: 14px; font-weight: 600; }
 
   /* Filters */
   .filters { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .filter-input, .filter-select {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 7px 12px;
-    font-family: var(--sans);
-    font-size: 12px;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.2s;
-    appearance: none; -webkit-appearance: none;
-  }
+  .filter-input, .filter-select { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; font-family: var(--sans); font-size: 12px; color: var(--text); outline: none; transition: border-color 0.2s; appearance: none; -webkit-appearance: none; }
   .filter-input { min-width: 180px; }
   .filter-select { cursor: pointer; padding-right: 28px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
   .filter-input:focus, .filter-select:focus { border-color: var(--accent); }
   .filter-input::placeholder { color: var(--text3); }
-
-  .btn-export {
-    display: flex; align-items: center; gap: 7px;
-    padding: 7px 14px;
-    background: rgba(16,185,129,0.1);
-    border: 1px solid rgba(16,185,129,0.2);
-    border-radius: 8px;
-    font-family: var(--sans);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--green);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
+  .btn-export { display: flex; align-items: center; gap: 7px; padding: 7px 14px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); border-radius: 8px; font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--green); cursor: pointer; transition: all 0.2s; }
   .btn-export:hover { background: rgba(16,185,129,0.18); }
 
   /* Table */
   .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th {
-    background: var(--bg2);
-    padding: 10px 14px;
-    text-align: left;
-    font-size: 11px;
-    font-family: var(--mono);
-    color: var(--text3);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-  }
-  td {
-    padding: 11px 14px;
-    border-bottom: 1px solid rgba(30,45,71,0.5);
-    vertical-align: middle;
-  }
+  th { background: var(--bg2); padding: 10px 14px; text-align: left; font-size: 11px; font-family: var(--mono); color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 11px 14px; border-bottom: 1px solid rgba(30,45,71,0.5); vertical-align: middle; }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: rgba(255,255,255,0.015); }
-
   .td-id { font-family: var(--mono); font-size: 12px; color: var(--accent); }
   .td-name { font-weight: 500; }
   .td-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
 
-  /* Status badges */
-  .badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-size: 11px; font-weight: 600;
-    white-space: nowrap;
-  }
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
   .badge.aberto { background: rgba(45,122,255,0.12); color: #60a5fa; border: 1px solid rgba(45,122,255,0.2); }
   .badge.andamento { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
   .badge.finalizado { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
 
-  /* Action buttons */
+  /* Actions */
   .actions { display: flex; gap: 6px; align-items: center; flex-wrap: nowrap; }
-  .btn-action {
-    padding: 5px 10px;
-    border-radius: 6px;
-    border: 1px solid;
-    font-family: var(--sans);
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
+  .btn-action { padding: 5px 10px; border-radius: 6px; border: 1px solid; font-family: var(--sans); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .btn-iniciar { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #fbbf24; }
   .btn-iniciar:hover { background: rgba(245,158,11,0.2); }
   .btn-finalizar { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: #34d399; }
@@ -247,140 +107,45 @@
   .btn-del { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2); color: #f87171; }
   .btn-del:hover { background: rgba(239,68,68,0.16); }
 
-  .empty-state {
-    padding: 50px;
-    text-align: center;
-    color: var(--text3);
-    font-size: 14px;
-  }
+  .empty-state { padding: 50px; text-align: center; color: var(--text3); font-size: 14px; }
   .empty-state .icon { font-size: 36px; margin-bottom: 12px; }
 
   /* Month controls */
-  .month-controls {
-    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    margin-bottom: 20px;
-  }
-  .btn-month {
-    padding: 7px 14px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    font-family: var(--sans);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text2);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
+  .month-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+  .btn-month { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--text2); cursor: pointer; transition: all 0.15s; }
   .btn-month:hover { border-color: var(--border2); color: var(--text); }
   .btn-month.active { background: rgba(45,122,255,0.1); border-color: var(--accent); color: var(--accent); }
-  .btn-new-month {
-    background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: var(--green);
-  }
+  .btn-new-month { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: var(--green); }
   .btn-new-month:hover { background: rgba(16,185,129,0.2); }
-  .btn-del-month {
-    background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2); color: #f87171;
-  }
+  .btn-del-month { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2); color: #f87171; }
   .btn-del-month:hover { background: rgba(239,68,68,0.16); }
 
   /* Modal */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-    z-index: 200;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
   .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--card);
-    border: 1px solid var(--border2);
-    border-radius: 16px;
-    padding: 28px;
-    width: 100%;
-    max-width: 460px;
-    animation: modalIn 0.25s ease;
-  }
-  @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.95) translateY(10px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-  }
+  .modal { background: var(--card); border: 1px solid var(--border2); border-radius: 16px; padding: 28px; width: 100%; max-width: 460px; animation: modalIn 0.25s ease; }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
   .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
   .modal-sub { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
-  .modal textarea {
-    width: 100%;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    padding: 11px 14px;
-    font-family: var(--sans);
-    font-size: 13px;
-    color: var(--text);
-    outline: none;
-    resize: vertical;
-    min-height: 100px;
-    transition: border-color 0.2s;
-    margin-bottom: 16px;
-  }
+  .modal textarea { width: 100%; background: var(--bg2); border: 1px solid var(--border); border-radius: 9px; padding: 11px 14px; font-family: var(--sans); font-size: 13px; color: var(--text); outline: none; resize: vertical; min-height: 100px; transition: border-color 0.2s; margin-bottom: 16px; }
   .modal textarea:focus { border-color: var(--accent); }
   .modal textarea::placeholder { color: var(--text3); }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-  .btn-cancel {
-    padding: 9px 18px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: transparent;
-    font-family: var(--sans);
-    font-size: 13px;
-    color: var(--text2);
-    cursor: pointer;
-  }
-  .btn-confirm {
-    padding: 9px 18px;
-    border-radius: 8px;
-    border: none;
-    background: var(--green);
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
+  .btn-cancel { padding: 9px 18px; border-radius: 8px; border: 1px solid var(--border); background: transparent; font-family: var(--sans); font-size: 13px; color: var(--text2); cursor: pointer; }
+  .btn-confirm { padding: 9px 18px; border-radius: 8px; border: none; background: var(--green); font-family: var(--sans); font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; transition: all 0.2s; }
   .btn-confirm:hover { background: #059669; }
 
-  /* View modal */
+  /* Detail modal */
   .detail-row { display: flex; gap: 6px; margin-bottom: 10px; font-size: 13px; }
   .detail-key { color: var(--text3); font-family: var(--mono); font-size: 11px; min-width: 110px; padding-top: 2px; }
   .detail-val { color: var(--text); line-height: 1.5; }
 
   /* Toast */
-  .toast {
-    position: fixed; bottom: 24px; right: 24px;
-    background: var(--card2);
-    border: 1px solid var(--green);
-    border-radius: 10px;
-    padding: 13px 18px;
-    font-size: 13px;
-    color: var(--green);
-    z-index: 999;
-    transform: translateX(120%);
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--card2); border: 1px solid var(--green); border-radius: 10px; padding: 13px 18px; font-size: 13px; color: var(--green); z-index: 999; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .toast.show { transform: translateX(0); }
 
-  @media (max-width: 900px) {
-    .sidebar { display: none; }
-    .main { margin-left: 0; }
-    .stats-row { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 500px) {
-    .stats-row { grid-template-columns: 1fr 1fr; }
-    .content { padding: 16px; }
-  }
+  @media (max-width: 900px) { .sidebar { display: none; } .main { margin-left: 0; } .stats-row { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 500px) { .stats-row { grid-template-columns: 1fr 1fr; } .content { padding: 16px; } }
 </style>
 </head>
 <body>
@@ -399,6 +164,11 @@
   <div class="nav">
     <div class="nav-item active" onclick="showPanel('tickets')" id="nav-tickets">
       <span class="icon">📋</span> Chamados
+      <span class="nav-badge" id="badge-tickets"></span>
+    </div>
+    <div class="nav-item" onclick="showPanel('andamento')" id="nav-andamento">
+      <span class="icon">⚡</span> Em Andamento
+      <span class="nav-badge yellow" id="badge-andamento"></span>
     </div>
     <div class="nav-item" onclick="showPanel('historico')" id="nav-historico">
       <span class="icon">📚</span> Histórico
@@ -408,6 +178,10 @@
     </div>
   </div>
   <div class="sidebar-footer">
+    <div class="tecnico-info">
+      <div class="tecnico-label">LOGADO COMO</div>
+      <div class="tecnico-nome" id="tecnicoNome">—</div>
+    </div>
     <div class="nav-item" onclick="logout()">
       <span class="icon">🚪</span> Sair
     </div>
@@ -417,48 +191,29 @@
 <!-- Main -->
 <div class="main">
   <div class="topbar">
-    <div class="page-title" id="pageTitle">Chamados Ativos</div>
+    <div class="page-title" id="pageTitle">Chamados Novos</div>
     <div class="topbar-right">
-      <div class="badge-count"><span class="dot open"></span><span id="countAberto">0</span> abertos</div>
-      <div class="badge-count"><span class="dot active"></span><span id="countAndamento">0</span> em andamento</div>
-      <div class="badge-count"><span class="dot done"></span><span id="countFinalizado">0</span> finalizados</div>
+      <div class="badge-count"><div class="dot open"></div><span id="countAberto">0</span> abertos</div>
+      <div class="badge-count"><div class="dot active"></div><span id="countAndamento">0</span> em andamento</div>
+      <div class="badge-count"><div class="dot done"></div><span id="countFinalizado">0</span> finalizados</div>
     </div>
   </div>
 
   <div class="content">
-
     <!-- Stats -->
-    <div class="stats-row" id="statsRow">
-      <div class="stat-card">
-        <div class="stat-label">Total</div>
-        <div class="stat-val all" id="statTotal">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Abertos</div>
-        <div class="stat-val blue" id="statAberto">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Em andamento</div>
-        <div class="stat-val yellow" id="statAndamento">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Finalizados</div>
-        <div class="stat-val green" id="statFinalizado">0</div>
-      </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Total</div><div class="stat-val all" id="statTotal">0</div></div>
+      <div class="stat-card"><div class="stat-label">Abertos</div><div class="stat-val blue" id="statAberto">0</div></div>
+      <div class="stat-card"><div class="stat-label">Em Andamento</div><div class="stat-val yellow" id="statAndamento">0</div></div>
+      <div class="stat-card"><div class="stat-label">Finalizados</div><div class="stat-val green" id="statFinalizado">0</div></div>
     </div>
 
-    <!-- Tickets panel -->
+    <!-- Chamados Novos (apenas Aberto) -->
     <div class="panel active" id="panel-tickets">
       <div class="panel-header">
-        <div class="panel-title">📋 Lista de Chamados</div>
+        <div class="panel-title">📋 Chamados Novos — Aguardando Atendimento</div>
         <div class="filters">
           <input class="filter-input" type="text" id="searchInput" placeholder="🔍 Buscar por nome, categoria..." oninput="renderTickets()">
-          <select class="filter-select" id="filterStatus" onchange="renderTickets()">
-            <option value="">Todos os status</option>
-            <option value="Aberto">Aberto</option>
-            <option value="Em andamento">Em andamento</option>
-            <option value="Finalizado">Finalizado</option>
-          </select>
           <select class="filter-select" id="filterSetor" onchange="renderTickets()">
             <option value="">Todos os setores</option>
             <option>Administrativo</option><option>Almoxarifado</option><option>Comercial</option>
@@ -477,58 +232,66 @@
       <div class="table-wrap">
         <table>
           <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome / Setor</th>
-              <th>Categoria</th>
-              <th>Tipo</th>
-              <th>Status</th>
-              <th>Data</th>
-              <th>Ações</th>
-            </tr>
+            <tr><th>ID</th><th>Nome / Setor</th><th>Categoria</th><th>Tipo</th><th>Recebido em</th><th>Ações</th></tr>
           </thead>
           <tbody id="ticketsTable"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Histórico panel -->
-    <div class="panel" id="panel-historico">
+    <!-- Em Andamento -->
+    <div class="panel" id="panel-andamento">
       <div class="panel-header">
-        <div class="panel-title">📚 Histórico de Chamados</div>
+        <div class="panel-title">⚡ Chamados Em Andamento</div>
         <div class="filters">
-          <input class="filter-input" type="text" id="searchHist" placeholder="🔍 Buscar..." oninput="renderHistory()">
-          <select class="filter-select" id="filterMesHist" onchange="renderHistory()">
-            <option value="">Todos os meses</option>
+          <input class="filter-input" type="text" id="searchAnd" placeholder="🔍 Buscar..." oninput="renderAndamento()">
+          <select class="filter-select" id="filterSetorAnd" onchange="renderAndamento()">
+            <option value="">Todos os setores</option>
+            <option>Administrativo</option><option>Almoxarifado</option><option>Comercial</option>
+            <option>Compras</option><option>Contábil</option><option>Expedição</option>
+            <option>Faturamento</option><option>Financeiro</option><option>Fiscal</option>
+            <option>Jurídico</option><option>Logística</option><option>Manutenção</option>
+            <option>Marketing</option><option>PCP</option><option>Produção</option>
+            <option>Qualidade</option><option>RH</option><option>Segurança do trabalho</option>
+            <option>Sustentabilidade</option><option>TI</option>
           </select>
-          <button class="btn-export" onclick="exportCSV()">
-            ⬇️ Exportar CSV
-          </button>
         </div>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome / Contato</th>
-              <th>Categoria / Tipo</th>
-              <th>Setor</th>
-              <th>Solução</th>
-              <th>Data Fim</th>
-              <th>Mês</th>
-            </tr>
+            <tr><th>ID</th><th>Nome / Setor</th><th>Categoria</th><th>Tipo</th><th>Iniciado em</th><th>Técnico</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="andamentoTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Histórico (apenas Finalizado) -->
+    <div class="panel" id="panel-historico">
+      <div class="panel-header">
+        <div class="panel-title">📚 Histórico de Chamados Finalizados</div>
+        <div class="filters">
+          <input class="filter-input" type="text" id="searchHist" placeholder="🔍 Buscar..." oninput="renderHistory()">
+          <select class="filter-select" id="filterMesHist" onchange="renderHistory()">
+            <option value="">Todos os meses</option>
+          </select>
+          <button class="btn-export" onclick="exportCSV()">⬇️ Exportar CSV</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Nome / Contato</th><th>Categoria / Tipo</th><th>Setor</th><th>Solução</th><th>Técnico</th><th>Data Fim</th><th>Mês</th></tr>
           </thead>
           <tbody id="histTable"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Meses panel -->
+    <!-- Meses -->
     <div class="panel" id="panel-meses">
-      <div class="panel-header">
-        <div class="panel-title">📁 Controle por Mês</div>
-      </div>
+      <div class="panel-header"><div class="panel-title">📁 Controle por Mês</div></div>
       <div style="padding: 22px;">
         <div class="month-controls" id="monthControls"></div>
         <div id="monthStats" style="margin-top:16px;"></div>
@@ -565,22 +328,22 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── Auth check ───────────────────────────────────────────────
+// ─── Auth ─────────────────────────────────────────────────────
 if (!sessionStorage.getItem('admin_logged')) {
   window.location.href = 'login.html';
 }
+const TECNICO_LOGADO = sessionStorage.getItem('admin_nome') || 'Desconhecido';
+document.getElementById('tecnicoNome').textContent = TECNICO_LOGADO;
 
 const TICKETS_KEY = 'helpdesk_tickets';
 const MONTHS_KEY  = 'helpdesk_months';
+let finalizingId  = null;
 
-let finalizingId = null;
-
-// ─── Storage helpers ──────────────────────────────────────────
+// ─── Storage ──────────────────────────────────────────────────
 function getTickets() { return JSON.parse(localStorage.getItem(TICKETS_KEY) || '[]'); }
 function saveTickets(t) { localStorage.setItem(TICKETS_KEY, JSON.stringify(t)); }
 function getMonths() {
   const stored = JSON.parse(localStorage.getItem(MONTHS_KEY) || '[]');
-  // Always ensure current month exists
   const cur = getCurrentMonth();
   if (!stored.includes(cur)) { stored.push(cur); localStorage.setItem(MONTHS_KEY, JSON.stringify(stored)); }
   return stored;
@@ -590,15 +353,13 @@ function getCurrentMonth() {
   const now = new Date();
   return `${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
 }
-
-// ─── Format date ─────────────────────────────────────────────
 function fmt(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
   return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
 }
 
-// ─── Stats ────────────────────────────────────────────────────
+// ─── Stats & badges ───────────────────────────────────────────
 function updateStats() {
   const t = getTickets();
   const a = t.filter(x => x.status === 'Aberto').length;
@@ -611,9 +372,15 @@ function updateStats() {
   document.getElementById('countAberto').textContent = a;
   document.getElementById('countAndamento').textContent = e;
   document.getElementById('countFinalizado').textContent = f;
+
+  // Sidebar badges
+  const bT = document.getElementById('badge-tickets');
+  const bA = document.getElementById('badge-andamento');
+  bT.textContent = a; bT.classList.toggle('show', a > 0);
+  bA.textContent = e; bA.classList.toggle('show', e > 0);
 }
 
-// ─── Populate month selects ───────────────────────────────────
+// ─── Month selects ────────────────────────────────────────────
 function populateMonthSelects() {
   const months = getMonths();
   ['filterMes','filterMesHist'].forEach(id => {
@@ -625,45 +392,58 @@ function populateMonthSelects() {
   });
 }
 
-// ─── Render tickets table ─────────────────────────────────────
+// ─── Render: Chamados Novos (Aberto) ─────────────────────────
 function renderTickets() {
   const search = document.getElementById('searchInput').value.toLowerCase();
-  const status = document.getElementById('filterStatus').value;
   const setor  = document.getElementById('filterSetor').value;
   const mes    = document.getElementById('filterMes').value;
-  let t = getTickets();
+  let t = getTickets().filter(x => x.status === 'Aberto');
   if (search) t = t.filter(x => x.nome.toLowerCase().includes(search) || x.categoria.toLowerCase().includes(search) || x.id.toLowerCase().includes(search));
-  if (status) t = t.filter(x => x.status === status);
   if (setor)  t = t.filter(x => x.setor === setor);
   if (mes)    t = t.filter(x => x.mes === mes);
 
   const tbody = document.getElementById('ticketsTable');
-  if (!t.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">📭</div>Nenhum chamado encontrado</div></td></tr>`; return; }
-
-  tbody.innerHTML = t.map(x => {
-    let actions = '';
-    if (x.status === 'Aberto') actions = `<button class="btn-action btn-iniciar" onclick="iniciar('${x.id}')">▶ Iniciar</button>`;
-    else if (x.status === 'Em andamento') actions = `<button class="btn-action btn-finalizar" onclick="abrirFinalizar('${x.id}')">✓ Finalizar</button>`;
-    actions += ` <button class="btn-action btn-ver" onclick="verDetalhes('${x.id}')">👁</button>`;
-    actions += ` <button class="btn-action btn-del" onclick="deletarTicket('${x.id}')">✕</button>`;
-    return `<tr>
-      <td class="td-id">${x.id}</td>
-      <td><div class="td-name">${x.nome}</div><div class="td-sub">${x.setor}</div></td>
-      <td>${x.categoria}</td>
-      <td><span style="font-size:11px;color:var(--text2)">${x.tipo}</span></td>
-      <td><span class="badge ${statusClass(x.status)}">${x.status}</span></td>
-      <td style="font-size:12px;color:var(--text2);font-family:var(--mono);white-space:nowrap">${fmt(x.dataCriacao)}</td>
-      <td><div class="actions">${actions}</div></td>
-    </tr>`;
-  }).join('');
-}
-function statusClass(s) {
-  if (s === 'Aberto') return 'aberto';
-  if (s === 'Em andamento') return 'andamento';
-  return 'finalizado';
+  if (!t.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">✅</div>Nenhum chamado novo aguardando</div></td></tr>`; return; }
+  tbody.innerHTML = t.map(x => `<tr>
+    <td class="td-id">${x.id}</td>
+    <td><div class="td-name">${x.nome}</div><div class="td-sub">${x.setor}</div></td>
+    <td>${x.categoria}</td>
+    <td><span style="font-size:11px;color:var(--text2)">${x.tipo}</span></td>
+    <td style="font-size:12px;color:var(--text2);font-family:var(--mono);white-space:nowrap">${fmt(x.dataCriacao)}</td>
+    <td><div class="actions">
+      <button class="btn-action btn-iniciar" onclick="iniciar('${x.id}')">▶ Iniciar</button>
+      <button class="btn-action btn-ver" onclick="verDetalhes('${x.id}')">👁</button>
+      <button class="btn-action btn-del" onclick="deletarTicket('${x.id}')">✕</button>
+    </div></td>
+  </tr>`).join('');
 }
 
-// ─── Render history ───────────────────────────────────────────
+// ─── Render: Em Andamento ─────────────────────────────────────
+function renderAndamento() {
+  const search = document.getElementById('searchAnd').value.toLowerCase();
+  const setor  = document.getElementById('filterSetorAnd').value;
+  let t = getTickets().filter(x => x.status === 'Em andamento');
+  if (search) t = t.filter(x => x.nome.toLowerCase().includes(search) || x.categoria.toLowerCase().includes(search) || x.id.toLowerCase().includes(search));
+  if (setor)  t = t.filter(x => x.setor === setor);
+
+  const tbody = document.getElementById('andamentoTable');
+  if (!t.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">📭</div>Nenhum chamado em andamento</div></td></tr>`; return; }
+  tbody.innerHTML = t.map(x => `<tr>
+    <td class="td-id">${x.id}</td>
+    <td><div class="td-name">${x.nome}</div><div class="td-sub">${x.setor}</div></td>
+    <td>${x.categoria}</td>
+    <td><span style="font-size:11px;color:var(--text2)">${x.tipo}</span></td>
+    <td style="font-size:12px;color:var(--text2);font-family:var(--mono);white-space:nowrap">${fmt(x.dataInicio)}</td>
+    <td><span style="font-size:12px;color:var(--yellow);font-family:var(--mono)">${x.tecnicoInicio || '—'}</span></td>
+    <td><div class="actions">
+      <button class="btn-action btn-finalizar" onclick="abrirFinalizar('${x.id}')">✓ Finalizar</button>
+      <button class="btn-action btn-ver" onclick="verDetalhes('${x.id}')">👁</button>
+      <button class="btn-action btn-del" onclick="deletarTicket('${x.id}')">✕</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+// ─── Render: Histórico (Finalizado) ──────────────────────────
 function renderHistory() {
   const search = document.getElementById('searchHist').value.toLowerCase();
   const mes    = document.getElementById('filterMesHist').value;
@@ -672,20 +452,20 @@ function renderHistory() {
   if (mes) t = t.filter(x => x.mes === mes);
 
   const tbody = document.getElementById('histTable');
-  if (!t.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">📭</div>Nenhum chamado finalizado</div></td></tr>`; return; }
-
+  if (!t.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">📭</div>Nenhum chamado finalizado</div></td></tr>`; return; }
   tbody.innerHTML = t.map(x => `<tr>
     <td class="td-id">${x.id}</td>
     <td><div class="td-name">${x.nome}</div><div class="td-sub">${x.email}</div></td>
     <td><div>${x.categoria}</div><div class="td-sub">${x.tipo}</div></td>
     <td>${x.setor}</td>
-    <td style="max-width:220px;font-size:12px;color:var(--text2)">${x.solucao || '—'}</td>
+    <td style="max-width:200px;font-size:12px;color:var(--text2)">${x.solucao || '—'}</td>
+    <td><span style="font-size:12px;color:var(--green);font-family:var(--mono)">${x.tecnicoFim || '—'}</span></td>
     <td style="font-size:11px;color:var(--text3);font-family:var(--mono);white-space:nowrap">${fmt(x.dataFim)}</td>
     <td><span style="font-family:var(--mono);font-size:11px;color:var(--accent)">${x.mes}</span></td>
   </tr>`).join('');
 }
 
-// ─── Render months panel ──────────────────────────────────────
+// ─── Render: Meses ────────────────────────────────────────────
 function renderMonths() {
   const months = getMonths();
   const cur = getCurrentMonth();
@@ -696,8 +476,6 @@ function renderMonths() {
     ctrl.innerHTML += `<button class="btn-month ${active}" onclick="selectMonth('${m}')">${m}</button>`;
   });
   ctrl.innerHTML += `<button class="btn-month btn-del-month" onclick="deleteMonth()">🗑 Excluir mês atual</button>`;
-
-  // Stats for current month
   const t = getTickets().filter(x => x.mes === cur);
   document.getElementById('monthStats').innerHTML = `
     <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-family:var(--mono)">Mês atual: <span style="color:var(--accent)">${cur}</span></div>
@@ -712,17 +490,12 @@ function createMonth() {
   if (!input || !/^\d{2}\/\d{4}$/.test(input.trim())) { alert('Formato inválido. Use MM/AAAA'); return; }
   const months = getMonths();
   if (months.includes(input.trim())) { alert('Mês já existe.'); return; }
-  months.push(input.trim());
-  saveMonths(months);
-  populateMonthSelects();
-  renderMonths();
+  months.push(input.trim()); saveMonths(months); populateMonthSelects(); renderMonths();
   showToast('Mês ' + input.trim() + ' criado!');
 }
 function selectMonth(m) {
-  // Filter tickets panel to this month
   document.getElementById('filterMes').value = m;
-  showPanel('tickets');
-  renderTickets();
+  showPanel('tickets'); renderTickets();
 }
 function deleteMonth() {
   const cur = getCurrentMonth();
@@ -731,9 +504,7 @@ function deleteMonth() {
   saveTickets(tickets);
   let months = getMonths().filter(m => m !== cur);
   if (!months.length) months.push(getCurrentMonth());
-  saveMonths(months);
-  refresh();
-  showToast('Histórico do mês excluído.');
+  saveMonths(months); refresh(); showToast('Histórico do mês excluído.');
 }
 
 // ─── Actions ──────────────────────────────────────────────────
@@ -743,9 +514,9 @@ function iniciar(id) {
   if (i < 0) return;
   t[i].status = 'Em andamento';
   t[i].dataInicio = new Date().toISOString();
-  saveTickets(t);
-  refresh();
-  showToast('Chamado ' + id + ' iniciado!');
+  t[i].tecnicoInicio = TECNICO_LOGADO; // grava quem iniciou
+  saveTickets(t); refresh();
+  showToast('Chamado ' + id + ' iniciado por ' + TECNICO_LOGADO + '!');
 }
 
 function abrirFinalizar(id) {
@@ -762,20 +533,19 @@ function confirmarFinalizar() {
   const t = getTickets();
   const i = t.findIndex(x => x.id === finalizingId);
   if (i < 0) return;
-  t[i].status = 'Finalizado';
-  t[i].solucao = sol;
-  t[i].dataFim = new Date().toISOString();
+  t[i].status   = 'Finalizado';
+  t[i].solucao  = sol;
+  t[i].dataFim  = new Date().toISOString();
+  t[i].tecnicoFim = TECNICO_LOGADO; // grava quem finalizou
   saveTickets(t);
-  closeModal('modalFinalizar');
-  refresh();
-  showToast('Chamado ' + finalizingId + ' finalizado!');
+  closeModal('modalFinalizar'); refresh();
+  showToast('Chamado ' + finalizingId + ' finalizado por ' + TECNICO_LOGADO + '!');
 }
 
 function deletarTicket(id) {
   if (!confirm('Excluir o chamado ' + id + '?')) return;
   saveTickets(getTickets().filter(x => x.id !== id));
-  refresh();
-  showToast('Chamado removido.');
+  refresh(); showToast('Chamado removido.');
 }
 
 function verDetalhes(id) {
@@ -792,46 +562,65 @@ function verDetalhes(id) {
     <div class="detail-row"><span class="detail-key">Status</span><span class="detail-val"><span class="badge ${statusClass(t.status)}">${t.status}</span></span></div>
     <div class="detail-row"><span class="detail-key">Aberto em</span><span class="detail-val">${fmt(t.dataCriacao)}</span></div>
     ${t.dataInicio ? `<div class="detail-row"><span class="detail-key">Iniciado em</span><span class="detail-val">${fmt(t.dataInicio)}</span></div>` : ''}
+    ${t.tecnicoInicio ? `<div class="detail-row"><span class="detail-key">Iniciado por</span><span class="detail-val" style="color:var(--yellow)">${t.tecnicoInicio}</span></div>` : ''}
     ${t.dataFim ? `<div class="detail-row"><span class="detail-key">Finalizado em</span><span class="detail-val">${fmt(t.dataFim)}</span></div>` : ''}
+    ${t.tecnicoFim ? `<div class="detail-row"><span class="detail-key">Finalizado por</span><span class="detail-val" style="color:var(--green)">${t.tecnicoFim}</span></div>` : ''}
     <div class="detail-row" style="align-items:flex-start"><span class="detail-key">Descrição</span><span class="detail-val" style="color:var(--text2)">${t.descricao}</span></div>
     ${t.solucao ? `<div class="detail-row" style="align-items:flex-start"><span class="detail-key">Solução</span><span class="detail-val" style="color:var(--green)">${t.solucao}</span></div>` : ''}
   `;
   document.getElementById('modalDetalhes').classList.add('open');
 }
 
-// ─── Export ───────────────────────────────────────────────────
+// ─── Export CSV melhorado ─────────────────────────────────────
 function exportCSV() {
   const mes = document.getElementById('filterMesHist').value;
   let t = getTickets().filter(x => x.status === 'Finalizado');
   if (mes) t = t.filter(x => x.mes === mes);
   if (!t.length) { alert('Nenhum chamado para exportar.'); return; }
 
-  const header = ['ID','Nome','Email','WhatsApp','Setor','Tipo','Categoria','Descricao','Solucao','Data Criacao','Data Fim','Mes'];
+  const header = ['ID','Nome','Email','WhatsApp','Setor','Tipo','Categoria','Descricao','Solucao','Tecnico Responsavel','Data Abertura','Data Inicio','Data Fim','Mes'];
   const rows = t.map(x => [
-    x.id, x.nome, x.email, x.whatsapp, x.setor, x.tipo, x.categoria,
+    x.id,
+    x.nome,
+    x.email,
+    x.whatsapp,
+    x.setor,
+    x.tipo,
+    x.categoria,
     '"' + (x.descricao||'').replace(/"/g,'""') + '"',
     '"' + (x.solucao||'').replace(/"/g,'""') + '"',
-    fmt(x.dataCriacao), fmt(x.dataFim), x.mes
+    x.tecnicoFim || x.tecnicoInicio || '—',
+    fmt(x.dataCriacao),
+    fmt(x.dataInicio),
+    fmt(x.dataFim),
+    x.mes
   ]);
-  const csv = [header, ...rows].map(r => r.join(',')).join('\n');
+  const csv = [header, ...rows].map(r => r.join(';')).join('\n'); // usando ; para abrir certo no Excel BR
   const blob = new Blob(['\uFEFF' + csv], {type: 'text/csv;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `chamados_${mes.replace('/','_') || 'todos'}.csv`;
+  a.download = `chamados_${mes ? mes.replace('/','_') : 'todos'}.csv`;
   a.click();
   showToast('Exportação concluída!');
 }
 
 // ─── Navigation ───────────────────────────────────────────────
 function showPanel(name) {
-  ['tickets','historico','meses'].forEach(p => {
+  ['tickets','andamento','historico','meses'].forEach(p => {
     document.getElementById('panel-' + p).classList.toggle('active', p === name);
     document.getElementById('nav-' + p).classList.toggle('active', p === name);
   });
-  const titles = { tickets: 'Chamados Ativos', historico: 'Histórico', meses: 'Controle por Mês' };
+  const titles = { tickets: 'Chamados Novos', andamento: 'Em Andamento', historico: 'Histórico', meses: 'Controle por Mês' };
   document.getElementById('pageTitle').textContent = titles[name];
   if (name === 'historico') renderHistory();
+  if (name === 'andamento') renderAndamento();
   if (name === 'meses') renderMonths();
+}
+
+function statusClass(s) {
+  if (s === 'Aberto') return 'aberto';
+  if (s === 'Em andamento') return 'andamento';
+  return 'finalizado';
 }
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
@@ -839,20 +628,20 @@ document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('cli
 
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = '✓ ' + msg;
-  t.classList.add('show');
+  t.textContent = '✓ ' + msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
 function logout() {
   sessionStorage.removeItem('admin_logged');
+  sessionStorage.removeItem('admin_nome');
   window.location.href = 'login.html';
 }
 
 function refresh() {
-  updateStats();
-  populateMonthSelects();
-  renderTickets();
+  updateStats(); populateMonthSelects(); renderTickets();
+  // Atualiza aba em andamento se estiver visível
+  if (document.getElementById('panel-andamento').classList.contains('active')) renderAndamento();
 }
 
 // ─── Init ─────────────────────────────────────────────────────
