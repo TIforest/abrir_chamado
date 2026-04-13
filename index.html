@@ -143,7 +143,7 @@
 
       <div class="form-section">
         <div class="section-label">Tipo de solicitação</div>
-        <div class="field-grid cols2">
+        <div class="field-grid">
           <div class="field">
             <label>Tipo de trabalho <span class="req">*</span></label>
             <div class="radio-group">
@@ -158,24 +158,9 @@
             </div>
           </div>
           <div class="field">
-            <label>Categoria <span class="req">*</span></label>
-            <select id="categoria" required>
-              <option value="">Selecione...</option>
-              <option>Acessos</option><option>Backup</option><option>Câmeras</option>
-              <option>Desktop / Notebook</option><option>E-mail</option><option>Impressora</option>
-              <option>Inovação</option><option>Nobreak</option><option>Projeto</option>
-              <option>Protheus</option><option>Rede</option><option>Revisão Periódica</option>
-              <option>RH</option><option>Servidor</option><option>Software</option>
-            </select>
+            <label>Descreva o problema <span class="req">*</span></label>
+            <textarea id="descricao" placeholder="Ex: Internet não funciona no setor financeiro desde às 14h..." required></textarea>
           </div>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <div class="section-label">Descrição do problema</div>
-        <div class="field">
-          <label>Descreva o problema <span class="req">*</span></label>
-          <textarea id="descricao" placeholder="Ex: Internet não funciona no setor financeiro desde às 14h..." required></textarea>
         </div>
       </div>
 
@@ -244,10 +229,9 @@ document.getElementById('ticketForm').addEventListener('submit', async function(
   const whatsapp  = document.getElementById('whatsapp').value.trim();
   const setor     = document.getElementById('setor').value;
   const tipo      = document.querySelector('input[name="tipo"]:checked');
-  const categoria = document.getElementById('categoria').value;
   const descricao = document.getElementById('descricao').value.trim();
 
-  if (!nome || !email || !whatsapp || !setor || !tipo || !categoria || !descricao) {
+  if (!nome || !email || !whatsapp || !setor || !tipo || !descricao) {
     alert('Por favor, preencha todos os campos obrigatórios.');
     return;
   }
@@ -262,7 +246,6 @@ document.getElementById('ticketForm').addEventListener('submit', async function(
       id,
       nome, email, whatsapp, setor,
       tipo: tipo.value,
-      categoria,
       descricao,
       status: 'Aberto',
       mes: getCurrentMonth(),
