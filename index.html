@@ -445,8 +445,8 @@
             </div>
           </div>
           <div class="field">
-            <label>Categoria <span class="req">*</span></label>
-            <select id="categoria" required>
+            <label>Categoria Primária <span class="req">*</span></label>
+            <select id="categoria" required onchange="atualizarSubcategoria()">
               <option value="">Selecione...</option>
               <option>Acessos</option>
               <option>Backup</option>
@@ -463,6 +463,13 @@
               <option>RH</option>
               <option>Servidor</option>
               <option>Software</option>
+              <option>Telefonia</option>
+            </select>
+          </div>
+          <div class="field" id="subcategoriaField" style="display:none">
+            <label>Categoria Secundária <span class="req">*</span></label>
+            <select id="subcategoria" required>
+              <option value="">Selecione...</option>
             </select>
           </div>
         </div>
@@ -536,6 +543,14 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
   const categoria = document.getElementById('categoria').value;
   const descricao = document.getElementById('descricao').value.trim();
 
+  const subcategoriaEl = document.getElementById('subcategoria');
+  const subcategoriaVis = document.getElementById('subcategoriaField').style.display !== 'none';
+  const subcategoria = subcategoriaVis ? subcategoriaEl.value : '';
+  if (subcategoriaVis && !subcategoria) {
+    alert('Por favor, selecione a categoria secundária.');
+    return;
+  }
+
   if (!nome || !email || !whatsapp || !setor || !tipo || !categoria || !descricao) {
     alert('Por favor, preencha todos os campos obrigatórios.');
     return;
@@ -547,7 +562,8 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
     id,
     nome, email, whatsapp, setor,
     tipo: tipo.value,
-    categoria, descricao,
+    categoria: categoria + (subcategoria ? ' › ' + subcategoria : ''),
+    descricao,
     status: 'Aberto',
     mes: getCurrentMonth(),
     dataCriacao: now.toISOString(),
@@ -566,7 +582,141 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
   setTimeout(() => toast.classList.remove('show'), 4500);
 
   this.reset();
+  document.getElementById('subcategoriaField').style.display = 'none';
+  document.getElementById('subcategoria').required = false;
 });
+
+// ─── Subcategorias ────────────────────────────────────────────
+const SUBCATEGORIAS = {
+  'Acessos': [
+    'Alteração de Senha',
+    'Protheus',
+    'Sem acesso a Internet',
+    'Sem acesso pasta compartilhada'
+  ],
+  'Backup': [
+    'Configuração',
+    'Corrompido',
+    'Disaster Recovery',
+    'Não rodou',
+    'Recuperação de Dados',
+    'Rotina de troca de disco'
+  ],
+  'Câmeras': [
+    'SEM ACESSO'
+  ],
+  'Desktop / Notebook': [
+    'Bateria não carrega',
+    'Erro atualização drivers',
+    'Erro no Pacote Office',
+    'Erro Windows (tela azul)',
+    'Fonte com problema',
+    'Limpeza PC',
+    'Sistema Operacional Lento',
+    'Solicitação de mouse, teclado ou periféricos',
+    'Troca de peça'
+  ],
+  'E-mail': [
+    'Alteração de domínio',
+    'Alteração de senha',
+    'Assinatura de e-mail',
+    'Bloqueio de e-mail',
+    'Configuração',
+    'Não envia',
+    'Respostas automática de desativação',
+    'Respostas automática de férias / ausência'
+  ],
+  'Impressora': [
+    'Atolamento de Papel',
+    'Compartilhamento',
+    'Instalação',
+    'Não imprime',
+    'Scanner',
+    'Suprimentos'
+  ],
+  'Inovação': [
+    '1-Coletar Pedido',
+    '2-Comprar MP',
+    '3-Estocar MP',
+    '4-Produzir',
+    '5-Estocar MP, SA, PA',
+    '6-Programar, Carregar, Faturar',
+    '7-Pós-venda'
+  ],
+  'Nobreak': [
+    'Bateria não segura carga',
+    'Não liga'
+  ],
+  'Projeto': [
+    'Azure AD',
+    'SHAREPOINT',
+    'TOTVS'
+  ],
+  'Protheus': [
+    'Compras - Erro aprovação pedido',
+    'Contabilidade - Erro no Zeramento',
+    'Estoque',
+    'Faturamento - Erro na emissão de NFe',
+    'Financeiro - Erro no pagamento',
+    'OMS (Logística)',
+    'PCP - Erro no empenho',
+    'RH'
+  ],
+  'Rede': [
+    'Sem acesso a pasta compartilhada',
+    'Sem acesso a Internet'
+  ],
+  'Revisão Periódica': [
+    'DESKTOP',
+    'IMPRESSORAS',
+    'NOTEBOOK',
+    'PADRONIZAÇÃO EQUIPAMENTOS'
+  ],
+  'RH': [
+    'Alteração de acesso',
+    'Bloqueio de acesso',
+    'Comunicação Interna',
+    'Novo Funcionário'
+  ],
+  'Servidor': [
+    'BKP',
+    'Configuração',
+    'Criação de usuário',
+    'Não liga'
+  ],
+  'Software': [
+    'ATUALIZAÇÃO',
+    'Configuração',
+    'Instalação',
+    'Remoção'
+  ],
+  'Telefonia': [
+    'Ativar Número',
+    'Bloqueio de linha',
+    'Não efetua ligação',
+    'Novo Número',
+    'Sem dados Móveis',
+    'Solicitação de aparelho',
+    'Transferência de número'
+  ]
+};
+
+function atualizarSubcategoria() {
+  const cat = document.getElementById('categoria').value;
+  const field = document.getElementById('subcategoriaField');
+  const sel = document.getElementById('subcategoria');
+  const subs = SUBCATEGORIAS[cat];
+  if (subs && subs.length) {
+    sel.innerHTML = '<option value="">Selecione...</option>' +
+      subs.map(s => `<option value="${s}">${s}</option>`).join('');
+    field.style.display = '';
+    sel.required = true;
+  } else {
+    field.style.display = 'none';
+    sel.required = false;
+    sel.innerHTML = '<option value="">Selecione...</option>';
+  }
+}
 </script>
 </body>
 </html>
