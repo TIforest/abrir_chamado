@@ -551,22 +551,56 @@ function deletarTicket(id) {
 function verDetalhes(id) {
   const t = getTickets().find(x => x.id === id);
   if (!t) return;
-  document.getElementById('detTitle').textContent = 'Chamado ' + t.id;
+  document.getElementById('detTitle').innerHTML = `
+    <span style="font-family:var(--mono);font-size:13px;color:var(--accent)">${t.id}</span>
+    <span class="badge ${statusClass(t.status)}" style="margin-left:10px;font-size:11px">${t.status}</span>`;
+
   document.getElementById('detBody').innerHTML = `
-    <div class="detail-row"><span class="detail-key">Nome</span><span class="detail-val">${t.nome}</span></div>
-    <div class="detail-row"><span class="detail-key">E-mail</span><span class="detail-val">${t.email}</span></div>
-    <div class="detail-row"><span class="detail-key">WhatsApp</span><span class="detail-val">${t.whatsapp}</span></div>
-    <div class="detail-row"><span class="detail-key">Setor</span><span class="detail-val">${t.setor}</span></div>
-    <div class="detail-row"><span class="detail-key">Tipo</span><span class="detail-val">${t.tipo}</span></div>
-    <div class="detail-row"><span class="detail-key">Categoria</span><span class="detail-val">${t.categoria}</span></div>
-    <div class="detail-row"><span class="detail-key">Status</span><span class="detail-val"><span class="badge ${statusClass(t.status)}">${t.status}</span></span></div>
-    <div class="detail-row"><span class="detail-key">Aberto em</span><span class="detail-val">${fmt(t.dataCriacao)}</span></div>
-    ${t.dataInicio ? `<div class="detail-row"><span class="detail-key">Iniciado em</span><span class="detail-val">${fmt(t.dataInicio)}</span></div>` : ''}
-    ${t.tecnicoInicio ? `<div class="detail-row"><span class="detail-key">Iniciado por</span><span class="detail-val" style="color:var(--yellow)">${t.tecnicoInicio}</span></div>` : ''}
-    ${t.dataFim ? `<div class="detail-row"><span class="detail-key">Finalizado em</span><span class="detail-val">${fmt(t.dataFim)}</span></div>` : ''}
-    ${t.tecnicoFim ? `<div class="detail-row"><span class="detail-key">Finalizado por</span><span class="detail-val" style="color:var(--green)">${t.tecnicoFim}</span></div>` : ''}
-    <div class="detail-row" style="align-items:flex-start"><span class="detail-key">Descrição</span><span class="detail-val" style="color:var(--text2)">${t.descricao}</span></div>
-    ${t.solucao ? `<div class="detail-row" style="align-items:flex-start"><span class="detail-key">Solução</span><span class="detail-val" style="color:var(--green)">${t.solucao}</span></div>` : ''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px">
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:.08em;margin-bottom:4px">SOLICITANTE</div>
+        <div style="font-weight:600;font-size:14px">${t.nome}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">${t.setor}</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px">
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:.08em;margin-bottom:4px">CONTATO</div>
+        <div style="font-size:12px;color:var(--text2)">${t.email}</div>
+        <div style="font-size:12px;color:var(--accent);margin-top:2px;font-family:var(--mono)">${t.whatsapp}</div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px">
+      <div style="font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:.08em;margin-bottom:6px">TIPO DE SOLICITAÇÃO</div>
+      <span style="background:rgba(45,122,255,0.1);border:1px solid rgba(45,122,255,0.2);color:#60a5fa;border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600">${t.tipo}</span>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px">
+      <div style="font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:.08em;margin-bottom:8px">📝 DESCRIÇÃO DO PROBLEMA</div>
+      <div style="font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap">${t.descricao}</div>
+    </div>
+
+    ${t.solucao ? `
+    <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:14px;margin-bottom:10px">
+      <div style="font-size:10px;color:var(--green);font-family:var(--mono);letter-spacing:.08em;margin-bottom:8px">✅ SOLUÇÃO APLICADA</div>
+      <div style="font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap">${t.solucao}</div>
+    </div>` : ''}
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:3px">ABERTO EM</div>
+        <div style="font-size:12px;font-family:var(--mono);color:var(--text2)">${fmt(t.dataCriacao)}</div>
+      </div>
+      ${t.dataInicio ? `
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:3px">INICIADO EM</div>
+        <div style="font-size:12px;font-family:var(--mono);color:var(--yellow)">${fmt(t.dataInicio)}${t.tecnicoInicio ? ` · ${t.tecnicoInicio}` : ''}</div>
+      </div>` : ''}
+      ${t.dataFim ? `
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:3px">FINALIZADO EM</div>
+        <div style="font-size:12px;font-family:var(--mono);color:var(--green)">${fmt(t.dataFim)}${t.tecnicoFim ? ` · ${t.tecnicoFim}` : ''}</div>
+      </div>` : ''}
+    </div>
   `;
   document.getElementById('modalDetalhes').classList.add('open');
 }
