@@ -116,9 +116,17 @@
   .btn-cancel { padding: 9px 18px; border-radius: 8px; border: 1px solid var(--border); background: transparent; font-family: var(--sans); font-size: 13px; color: var(--text2); cursor: pointer; }
   .btn-confirm { padding: 9px 18px; border-radius: 8px; border: none; background: var(--green); font-family: var(--sans); font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; }
   .btn-confirm:hover { background: #059669; }
+  .btn-confirm:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* E-mail status badge inside modal */
+  .email-status { display:flex; align-items:center; gap:6px; font-size:11px; font-family:var(--mono); margin-top:10px; padding:8px 12px; border-radius:8px; }
+  .email-status.sending { background:rgba(45,122,255,0.08); color:var(--accent); border:1px solid rgba(45,122,255,0.15); }
+  .email-status.ok      { background:rgba(16,185,129,0.08); color:var(--green); border:1px solid rgba(16,185,129,0.15); }
+  .email-status.fail    { background:rgba(239,68,68,0.08); color:#f87171; border:1px solid rgba(239,68,68,0.15); }
 
   .toast { position: fixed; bottom: 24px; right: 24px; background: var(--card2); border: 1px solid var(--green); border-radius: 10px; padding: 13px 18px; font-size: 13px; color: var(--green); z-index: 999; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .toast.show { transform: translateX(0); }
+  .toast.error { border-color: var(--red); color: #f87171; }
 
   @media (max-width: 900px) { .sidebar { display: none; } .main { margin-left: 0; } .stats-row { grid-template-columns: 1fr 1fr; } }
 </style>
@@ -174,6 +182,7 @@
       <div class="stat-card"><div class="stat-label">Finalizados</div><div class="stat-val green" id="statFinalizado">—</div></div>
     </div>
 
+    <!-- PAINEL: Chamados novos -->
     <div class="panel active" id="panel-tickets">
       <div class="panel-header">
         <div class="panel-title">📋 Chamados Novos — Aguardando Atendimento</div>
@@ -186,9 +195,13 @@
           <button class="btn-refresh" onclick="loadAll()">🔄 Atualizar</button>
         </div>
       </div>
-      <div class="table-wrap"><table><thead><tr><th>ID</th><th>Nome / Setor</th><th>Tipo</th><th>Recebido em</th><th>Ações</th></tr></thead><tbody id="ticketsTable"><tr><td colspan="5"><div class="loading-state">⏳ Conectando ao banco de dados...</div></td></tr></tbody></table></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>ID</th><th>Nome / Setor</th><th>Tipo</th><th>Recebido em</th><th>Ações</th></tr></thead>
+        <tbody id="ticketsTable"><tr><td colspan="5"><div class="loading-state">⏳ Conectando ao banco de dados...</div></td></tr></tbody></table>
+      </div>
     </div>
 
+    <!-- PAINEL: Em andamento -->
     <div class="panel" id="panel-andamento">
       <div class="panel-header">
         <div class="panel-title">⚡ Chamados Em Andamento</div>
@@ -197,9 +210,13 @@
           <button class="btn-refresh" onclick="loadAll()">🔄 Atualizar</button>
         </div>
       </div>
-      <div class="table-wrap"><table><thead><tr><th>ID</th><th>Nome / Setor</th><th>Tipo</th><th>Iniciado em</th><th>Técnico</th><th>Ações</th></tr></thead><tbody id="andamentoTable"></tbody></table></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>ID</th><th>Nome / Setor</th><th>Tipo</th><th>Iniciado em</th><th>Técnico</th><th>Ações</th></tr></thead>
+        <tbody id="andamentoTable"></tbody></table>
+      </div>
     </div>
 
+    <!-- PAINEL: Histórico -->
     <div class="panel" id="panel-historico">
       <div class="panel-header">
         <div class="panel-title">📚 Histórico de Chamados Finalizados</div>
@@ -210,9 +227,13 @@
           <button class="btn-refresh" onclick="loadAll()">🔄 Atualizar</button>
         </div>
       </div>
-      <div class="table-wrap"><table><thead><tr><th>ID</th><th>Nome / Contato</th><th>Tipo</th><th>Setor</th><th>Solução</th><th>Técnico</th><th>Data Fim</th><th>Mês</th></tr></thead><tbody id="histTable"></tbody></table></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>ID</th><th>Nome / Contato</th><th>Tipo</th><th>Setor</th><th>Solução</th><th>Técnico</th><th>Data Fim</th><th>Mês</th></tr></thead>
+        <tbody id="histTable"></tbody></table>
+      </div>
     </div>
 
+    <!-- PAINEL: Meses -->
     <div class="panel" id="panel-meses">
       <div class="panel-header"><div class="panel-title">📁 Controle por Mês</div></div>
       <div style="padding:22px"><div class="month-controls" id="monthControls"></div><div id="monthStats" style="margin-top:16px"></div></div>
@@ -220,18 +241,21 @@
   </div>
 </div>
 
+<!-- Modal: Finalizar -->
 <div class="modal-overlay" id="modalFinalizar">
   <div class="modal">
     <div class="modal-title">✅ Finalizar Chamado</div>
     <div class="modal-sub" id="modalFinalizarSub"></div>
     <textarea id="solucaoInput" placeholder="Descreva o que foi feito para resolver o problema..."></textarea>
+    <div id="emailStatusFinalizar"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('modalFinalizar')">Cancelar</button>
-      <button class="btn-confirm" onclick="confirmarFinalizar()">Finalizar e Salvar</button>
+      <button class="btn-confirm" id="btnConfirmarFinalizar" onclick="confirmarFinalizar()">Finalizar e Salvar</button>
     </div>
   </div>
 </div>
 
+<!-- Modal: Detalhes -->
 <div class="modal-overlay" id="modalDetalhes">
   <div class="modal">
     <div class="modal-title" id="detTitle"></div>
@@ -242,64 +266,87 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<!-- ✅ EmailJS carregado via import dinâmico DENTRO do module — sem conflito -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// ─── Auth ─────────────────────────────────────────────────────
 if (!sessionStorage.getItem('admin_logged')) window.location.href = 'login.html';
-const TECNICO = sessionStorage.getItem('admin_nome') || 'Desconhecido';
+const TECNICO = sessionStorage.getItem('admin_nome') || 'Equipe TI';
 document.getElementById('tecnicoNome').textContent = TECNICO;
 
-// ── EmailJS config ────────────────────────────────────────────
-const EJS_SERVICE_ID    = 'helpdesk_ti';
-const EJS_TPL_INICIAR   = 'wn7rc8m';
-const EJS_TPL_FINALIZAR = 'vg6zkhh';
-emailjs.init('uKHv3r_y1tBxz0O1k');
-
-async function enviarEmailInicio(ticket) {
-  try {
-    await emailjs.send(EJS_SERVICE_ID, EJS_TPL_INICIAR, {
-      to_email:  ticket.email,
-      nome:      ticket.nome,
-      tecnico:   TECNICO,
-      ticket_id: ticket.id,
-      tipo:      ticket.tipo,
-      descricao: ticket.descricao
-    });
-  } catch(e) { console.warn('E-mail início falhou:', e); }
-}
-
-async function enviarEmailFim(ticket, solucao) {
-  try {
-    await emailjs.send(EJS_SERVICE_ID, EJS_TPL_FINALIZAR, {
-      to_email:  ticket.email,
-      nome:      ticket.nome,
-      tecnico:   TECNICO,
-      ticket_id: ticket.id,
-      tipo:      ticket.tipo,
-      descricao: ticket.descricao,
-      solucao:   solucao
-    });
-  } catch(e) { console.warn('E-mail finalização falhou:', e); }
-}
-// ─────────────────────────────────────────────────────────────
-
+// ─── Firebase ─────────────────────────────────────────────────
 const firebaseConfig = {
-  apiKey: "AIzaSyBkY4E7INOfY8RTRW47oqLVAxe1lrC4WUM",
-  authDomain: "helpdeskti-82ee9.firebaseapp.com",
-  projectId: "helpdeskti-82ee9",
-  storageBucket: "helpdeskti-82ee9.firebasestorage.app",
+  apiKey:            "AIzaSyBkY4E7INOfY8RTRW47oqLVAxe1lrC4WUM",
+  authDomain:        "helpdeskti-82ee9.firebaseapp.com",
+  projectId:         "helpdeskti-82ee9",
+  storageBucket:     "helpdeskti-82ee9.firebasestorage.app",
   messagingSenderId: "946670851908",
-  appId: "1:946670851908:web:ed50be5b40f266ca756911"
+  appId:             "1:946670851908:web:ed50be5b40f266ca756911"
 };
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 
-let allTickets = [];
-let finalizingId = null;
+// ─── EmailJS — carregado como módulo ES via CDN ────────────────
+// Isso evita o conflito entre <script> normal e <script type="module">
+const emailjs = await import('https://cdn.jsdelivr.net/npm/@emailjs/browser@4/+esm');
+emailjs.init('uKHv3r_y1tBxz0O1k'); // ← sua Public Key
 
-// ─── Tempo real ───────────────────────────────────────────────
+const EJS_SERVICE    = 'helpdesk_ti';
+const EJS_TPL_INICIO = 'wn7rc8m';  // ← seu template ID de início
+const EJS_TPL_FIM    = 'vg6zkhh';  // ← seu template ID de finalização
+
+// Envia e-mail quando chamado é INICIADO
+async function enviarEmailInicio(ticket) {
+  try {
+    await emailjs.send(EJS_SERVICE, EJS_TPL_INICIO, {
+      to_email:  ticket.email,
+      nome:      ticket.nome,
+      tecnico:   TECNICO,
+      ticket_id: ticket.id,
+      tipo:      ticket.tipo,
+      categoria: ticket.categoria || '',
+      setor:     ticket.setor,
+      descricao: ticket.descricao
+    });
+    console.log('✅ E-mail de início enviado para', ticket.email);
+    return true;
+  } catch(e) {
+    console.warn('⚠️ E-mail início falhou:', e);
+    return false;
+  }
+}
+
+// Envia e-mail quando chamado é FINALIZADO
+// Recebe os dados do ticket + a solução digitada agora (não usa cache)
+async function enviarEmailFim(ticket, solucao) {
+  try {
+    await emailjs.send(EJS_SERVICE, EJS_TPL_FIM, {
+      to_email:  ticket.email,
+      nome:      ticket.nome,
+      tecnico:   TECNICO,
+      ticket_id: ticket.id,
+      tipo:      ticket.tipo,
+      categoria: ticket.categoria || '',
+      setor:     ticket.setor,
+      descricao: ticket.descricao,
+      solucao:   solucao   // ← solução atual, não do cache
+    });
+    console.log('✅ E-mail de finalização enviado para', ticket.email);
+    return true;
+  } catch(e) {
+    console.warn('⚠️ E-mail finalização falhou:', e);
+    return false;
+  }
+}
+
+// ─── Estado ───────────────────────────────────────────────────
+let allTickets   = [];
+let finalizingId = null;   // _docId do ticket sendo finalizado
+
+// ─── Tempo real com onSnapshot ────────────────────────────────
 function loadAll() {
   const q = query(collection(db, 'tickets'), orderBy('createdAt', 'asc'));
   onSnapshot(q, (snap) => {
@@ -308,19 +355,28 @@ function loadAll() {
     renderTickets();
     if (document.getElementById('panel-andamento').classList.contains('active')) renderAndamento();
     if (document.getElementById('panel-historico').classList.contains('active')) renderHistory();
-    if (document.getElementById('panel-meses').classList.contains('active')) renderMonths();
+    if (document.getElementById('panel-meses').classList.contains('active'))    renderMonths();
     populateMonthSelect();
+  }, (err) => {
+    // Erro de conexão / permissão
+    console.error('Firebase snapshot error:', err);
+    document.getElementById('ticketsTable').innerHTML =
+      `<tr><td colspan="5"><div class="loading-state" style="color:#f87171">
+        ❌ Erro ao conectar. Verifique as regras do Firestore.<br>
+        <small style="color:var(--text3)">${err.message}</small>
+      </div></td></tr>`;
   });
 }
 window.loadAll = loadAll;
 
+// ─── Helpers ──────────────────────────────────────────────────
 function fmt(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
   return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
 }
 function statusClass(s) {
-  if (s === 'Aberto') return 'aberto';
+  if (s === 'Aberto')       return 'aberto';
   if (s === 'Em andamento') return 'andamento';
   return 'finalizado';
 }
@@ -334,15 +390,16 @@ function getMonths() {
   return [...set].sort();
 }
 
+// ─── Stats ────────────────────────────────────────────────────
 function updateStats() {
-  const a = allTickets.filter(x => x.status==='Aberto').length;
-  const e = allTickets.filter(x => x.status==='Em andamento').length;
-  const f = allTickets.filter(x => x.status==='Finalizado').length;
-  document.getElementById('statTotal').textContent = allTickets.length;
-  document.getElementById('statAberto').textContent = a;
+  const a = allTickets.filter(x => x.status === 'Aberto').length;
+  const e = allTickets.filter(x => x.status === 'Em andamento').length;
+  const f = allTickets.filter(x => x.status === 'Finalizado').length;
+  document.getElementById('statTotal').textContent    = allTickets.length;
+  document.getElementById('statAberto').textContent   = a;
   document.getElementById('statAndamento').textContent = e;
   document.getElementById('statFinalizado').textContent = f;
-  document.getElementById('countAberto').textContent = a;
+  document.getElementById('countAberto').textContent  = a;
   document.getElementById('countAndamento').textContent = e;
   document.getElementById('countFinalizado').textContent = f;
   const bT = document.getElementById('badge-tickets');
@@ -355,79 +412,99 @@ function populateMonthSelect() {
   const sel = document.getElementById('filterMesHist');
   const val = sel.value;
   sel.innerHTML = '<option value="">Todos os meses</option>';
-  getMonths().forEach(m => { const o = document.createElement('option'); o.value=m; o.textContent=m; sel.appendChild(o); });
+  getMonths().forEach(m => {
+    const o = document.createElement('option');
+    o.value = m; o.textContent = m; sel.appendChild(o);
+  });
   if (val) sel.value = val;
 }
 
+// ─── Render: Chamados Abertos ─────────────────────────────────
 function renderTickets() {
   const search = document.getElementById('searchInput').value.toLowerCase();
   const setor  = document.getElementById('filterSetor').value;
-  let t = allTickets.filter(x => x.status==='Aberto');
+  let t = allTickets.filter(x => x.status === 'Aberto');
   if (search) t = t.filter(x => x.nome?.toLowerCase().includes(search) || x.id?.toLowerCase().includes(search));
-  if (setor)  t = t.filter(x => x.setor===setor);
+  if (setor)  t = t.filter(x => x.setor === setor);
   const tbody = document.getElementById('ticketsTable');
-  if (!t.length) { tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div class="icon">✅</div>Nenhum chamado novo aguardando</div></td></tr>`; return; }
-  tbody.innerHTML = t.map(x=>`<tr>
+  if (!t.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">✅</div>Nenhum chamado novo aguardando</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = t.map(x => `<tr>
     <td class="td-id">${x.id}</td>
     <td><div class="td-name">${x.nome}</div><div class="td-sub">${x.setor}</div></td>
-    <td><span style="font-size:11px;color:var(--text2)">${x.tipo}</span></td>
+    <td><span style="font-size:11px;color:var(--text2)">${x.tipo}${x.categoria ? ' · ' + x.categoria : ''}</span></td>
     <td style="font-size:12px;color:var(--text2);font-family:var(--mono);white-space:nowrap">${fmt(x.dataCriacao)}</td>
     <td><div class="actions">
       <button class="btn-action btn-iniciar" onclick="iniciar('${x._docId}')">▶ Iniciar</button>
-      <button class="btn-action btn-ver" onclick="verDetalhes('${x._docId}')">👁</button>
-      <button class="btn-action btn-del" onclick="deletarTicket('${x._docId}','${x.id}')">✕</button>
-    </div></td></tr>`).join('');
+      <button class="btn-action btn-ver"     onclick="verDetalhes('${x._docId}')">👁</button>
+      <button class="btn-action btn-del"     onclick="deletarTicket('${x._docId}','${x.id}')">✕</button>
+    </div></td>
+  </tr>`).join('');
 }
 window.renderTickets = renderTickets;
 
+// ─── Render: Em andamento ─────────────────────────────────────
 function renderAndamento() {
   const search = document.getElementById('searchAnd').value.toLowerCase();
-  let t = allTickets.filter(x => x.status==='Em andamento');
+  let t = allTickets.filter(x => x.status === 'Em andamento');
   if (search) t = t.filter(x => x.nome?.toLowerCase().includes(search) || x.id?.toLowerCase().includes(search));
   const tbody = document.getElementById('andamentoTable');
-  if (!t.length) { tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><div class="icon">📭</div>Nenhum chamado em andamento</div></td></tr>`; return; }
-  tbody.innerHTML = t.map(x=>`<tr>
+  if (!t.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">📭</div>Nenhum chamado em andamento</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = t.map(x => `<tr>
     <td class="td-id">${x.id}</td>
     <td><div class="td-name">${x.nome}</div><div class="td-sub">${x.setor}</div></td>
-    <td><span style="font-size:11px;color:var(--text2)">${x.tipo}</span></td>
+    <td><span style="font-size:11px;color:var(--text2)">${x.tipo}${x.categoria ? ' · ' + x.categoria : ''}</span></td>
     <td style="font-size:12px;color:var(--text2);font-family:var(--mono);white-space:nowrap">${fmt(x.dataInicio)}</td>
-    <td><span style="font-size:12px;color:var(--yellow);font-family:var(--mono)">${x.tecnicoInicio||'—'}</span></td>
+    <td><span style="font-size:12px;color:var(--yellow);font-family:var(--mono)">${x.tecnicoInicio || '—'}</span></td>
     <td><div class="actions">
-      <button class="btn-action btn-finalizar" onclick="abrirFinalizar('${x._docId}','${x.id}','${x.nome?.replace(/'/g,"\\'")}','${x.tipo}')">✓ Finalizar</button>
-      <button class="btn-action btn-ver" onclick="verDetalhes('${x._docId}')">👁</button>
-      <button class="btn-action btn-del" onclick="deletarTicket('${x._docId}','${x.id}')">✕</button>
-    </div></td></tr>`).join('');
+      <button class="btn-action btn-finalizar" onclick="abrirFinalizar('${x._docId}','${x.id}','${(x.nome||'').replace(/'/g,"\\'")}','${x.tipo}')">✓ Finalizar</button>
+      <button class="btn-action btn-ver"       onclick="verDetalhes('${x._docId}')">👁</button>
+      <button class="btn-action btn-del"       onclick="deletarTicket('${x._docId}','${x.id}')">✕</button>
+    </div></td>
+  </tr>`).join('');
 }
 window.renderAndamento = renderAndamento;
 
+// ─── Render: Histórico ────────────────────────────────────────
 function renderHistory() {
   const search = document.getElementById('searchHist').value.toLowerCase();
   const mes    = document.getElementById('filterMesHist').value;
-  let t = allTickets.filter(x => x.status==='Finalizado');
+  let t = allTickets.filter(x => x.status === 'Finalizado');
   if (search) t = t.filter(x => x.nome?.toLowerCase().includes(search) || x.id?.toLowerCase().includes(search));
-  if (mes)    t = t.filter(x => x.mes===mes);
+  if (mes)    t = t.filter(x => x.mes === mes);
   const tbody = document.getElementById('histTable');
-  if (!t.length) { tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="icon">📭</div>Nenhum chamado finalizado</div></td></tr>`; return; }
-  tbody.innerHTML = t.map(x=>`<tr>
+  if (!t.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">📭</div>Nenhum chamado finalizado</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = t.map(x => `<tr>
     <td class="td-id">${x.id}</td>
     <td><div class="td-name">${x.nome}</div><div class="td-sub">${x.email}</div></td>
-    <td><span style="font-size:11px;color:var(--text2)">${x.tipo}</span></td>
+    <td><span style="font-size:11px;color:var(--text2)">${x.tipo}${x.categoria ? ' · ' + x.categoria : ''}</span></td>
     <td>${x.setor}</td>
-    <td style="max-width:180px;font-size:12px;color:var(--text2)">${x.solucao||'—'}</td>
-    <td><span style="font-size:12px;color:var(--green);font-family:var(--mono)">${x.tecnicoFim||'—'}</span></td>
+    <td style="max-width:180px;font-size:12px;color:var(--text2)">${x.solucao || '—'}</td>
+    <td><span style="font-size:12px;color:var(--green);font-family:var(--mono)">${x.tecnicoFim || '—'}</span></td>
     <td style="font-size:11px;color:var(--text3);font-family:var(--mono);white-space:nowrap">${fmt(x.dataFim)}</td>
     <td><span style="font-family:var(--mono);font-size:11px;color:var(--accent)">${x.mes}</span></td>
   </tr>`).join('');
 }
 window.renderHistory = renderHistory;
 
+// ─── Render: Meses ────────────────────────────────────────────
 function renderMonths() {
   const months = getMonths(); const cur = getCurrentMonth();
-  const ctrl = document.getElementById('monthControls');
-  ctrl.innerHTML = months.map(m=>`<button class="btn-month ${m===cur?'active':''}" onclick="filterByMonth('${m}')">${m}</button>`).join('');
-  const t = allTickets.filter(x => x.mes===cur);
+  document.getElementById('monthControls').innerHTML =
+    months.map(m => `<button class="btn-month ${m===cur?'active':''}" onclick="filterByMonth('${m}')">${m}</button>`).join('');
+  const t = allTickets.filter(x => x.mes === cur);
   document.getElementById('monthStats').innerHTML = `
-    <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-family:var(--mono)">Mês atual: <span style="color:var(--accent)">${cur}</span></div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-family:var(--mono)">
+      Mês atual: <span style="color:var(--accent)">${cur}</span>
+    </div>
     <div style="display:flex;gap:12px;flex-wrap:wrap">
       <div class="stat-card" style="min-width:120px"><div class="stat-label">Chamados</div><div class="stat-val all">${t.length}</div></div>
       <div class="stat-card" style="min-width:120px"><div class="stat-label">Finalizados</div><div class="stat-val green">${t.filter(x=>x.status==='Finalizado').length}</div></div>
@@ -435,50 +512,107 @@ function renderMonths() {
     </div>`;
 }
 window.renderMonths = renderMonths;
-
 function filterByMonth(m) { document.getElementById('filterMesHist').value=m; showPanel('historico'); }
 window.filterByMonth = filterByMonth;
 
+// ─── Ação: INICIAR ────────────────────────────────────────────
 async function iniciar(docId) {
+  // Pega ticket do estado local ANTES do updateDoc
+  const ticket = allTickets.find(x => x._docId === docId);
+  if (!ticket) return;
+
   try {
-    await updateDoc(doc(db,'tickets',docId), { status:'Em andamento', dataInicio:new Date().toISOString(), tecnicoInicio:TECNICO });
-    const ticket = allTickets.find(x => x._docId === docId);
-    if (ticket) await enviarEmailInicio(ticket);
-    showToast('Chamado iniciado por ' + TECNICO + '!');
-  } catch(e) { showToast('Erro ao iniciar.'); }
+    // 1. Atualiza Firestore
+    await updateDoc(doc(db, 'tickets', docId), {
+      status:        'Em andamento',
+      dataInicio:    new Date().toISOString(),
+      tecnicoInicio: TECNICO
+    });
+
+    // 2. Envia e-mail com os dados do ticket (não depende do snapshot)
+    const emailOk = await enviarEmailInicio(ticket);
+    showToast(emailOk
+      ? `▶ Iniciado! E-mail enviado para ${ticket.email}`
+      : `▶ Iniciado! (e-mail falhou — verifique o console)`
+    , emailOk ? '' : 'error');
+
+  } catch(e) {
+    console.error('Erro ao iniciar:', e);
+    showToast('❌ Erro ao iniciar chamado.', 'error');
+  }
 }
 window.iniciar = iniciar;
 
+// ─── Ação: Abrir modal FINALIZAR ──────────────────────────────
 function abrirFinalizar(docId, id, nome, tipo) {
   finalizingId = docId;
   document.getElementById('modalFinalizarSub').textContent = `${id} — ${nome} | ${tipo}`;
   document.getElementById('solucaoInput').value = '';
+  document.getElementById('emailStatusFinalizar').innerHTML = '';
+  document.getElementById('btnConfirmarFinalizar').disabled = false;
   document.getElementById('modalFinalizar').classList.add('open');
 }
 window.abrirFinalizar = abrirFinalizar;
 
+// ─── Ação: CONFIRMAR FINALIZAR ────────────────────────────────
 async function confirmarFinalizar() {
   const sol = document.getElementById('solucaoInput').value.trim();
   if (!sol) { alert('Descreva o que foi feito.'); return; }
+
+  const btn = document.getElementById('btnConfirmarFinalizar');
+  const statusEl = document.getElementById('emailStatusFinalizar');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+
+  // Pega o ticket do cache ANTES de qualquer await
+  const ticket = allTickets.find(x => x._docId === finalizingId);
+
   try {
-    await updateDoc(doc(db,'tickets',finalizingId), { status:'Finalizado', solucao:sol, dataFim:new Date().toISOString(), tecnicoFim:TECNICO });
-    const ticket = allTickets.find(x => x._docId === finalizingId);
-    if (ticket) await enviarEmailFim(ticket, sol);
+    // 1. Salva no Firestore
+    await updateDoc(doc(db, 'tickets', finalizingId), {
+      status:     'Finalizado',
+      solucao:    sol,
+      dataFim:    new Date().toISOString(),
+      tecnicoFim: TECNICO
+    });
+
+    // 2. Envia e-mail com a solução digitada agora (não do cache)
+    if (ticket) {
+      statusEl.innerHTML = `<div class="email-status sending">📨 Enviando e-mail para ${ticket.email}...</div>`;
+      const emailOk = await enviarEmailFim(ticket, sol);
+      statusEl.innerHTML = emailOk
+        ? `<div class="email-status ok">✅ E-mail enviado para ${ticket.email}</div>`
+        : `<div class="email-status fail">⚠️ E-mail falhou — chamado salvo normalmente</div>`;
+      await new Promise(r => setTimeout(r, 1200)); // mostra status brevemente
+    }
+
     closeModal('modalFinalizar');
-    showToast('Chamado finalizado por ' + TECNICO + '!');
-  } catch(e) { showToast('Erro ao finalizar.'); }
+    showToast('✅ Chamado finalizado por ' + TECNICO + '!');
+
+  } catch(e) {
+    console.error('Erro ao finalizar:', e);
+    statusEl.innerHTML = `<div class="email-status fail">❌ Erro: ${e.message}</div>`;
+    btn.disabled = false;
+    btn.textContent = 'Finalizar e Salvar';
+  }
 }
 window.confirmarFinalizar = confirmarFinalizar;
 
+// ─── Ação: DELETAR ────────────────────────────────────────────
 async function deletarTicket(docId, id) {
   if (!confirm('Excluir o chamado ' + id + '?')) return;
-  try { await deleteDoc(doc(db,'tickets',docId)); showToast('Chamado removido.'); }
-  catch(e) { showToast('Erro ao remover.'); }
+  try {
+    await deleteDoc(doc(db, 'tickets', docId));
+    showToast('Chamado ' + id + ' removido.');
+  } catch(e) {
+    showToast('Erro ao remover.', 'error');
+  }
 }
 window.deletarTicket = deletarTicket;
 
+// ─── Modal: Ver detalhes ──────────────────────────────────────
 function verDetalhes(docId) {
-  const t = allTickets.find(x => x._docId===docId);
+  const t = allTickets.find(x => x._docId === docId);
   if (!t) return;
   document.getElementById('detTitle').innerHTML = `
     <span style="font-family:var(--mono);font-size:13px;color:var(--accent)">${t.id}</span>
@@ -497,14 +631,16 @@ function verDetalhes(docId) {
       </div>
     </div>
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px">
-      <div style="font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:.08em;margin-bottom:6px">TIPO DE SOLICITAÇÃO</div>
+      <div style="font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:.08em;margin-bottom:6px">TIPO / CATEGORIA</div>
       <span style="background:rgba(45,122,255,0.1);border:1px solid rgba(45,122,255,0.2);color:#60a5fa;border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600">${t.tipo}</span>
+      ${t.categoria ? `<span style="background:rgba(45,122,255,0.06);border:1px solid rgba(45,122,255,0.12);color:var(--text2);border-radius:6px;padding:3px 10px;font-size:12px;margin-left:6px">${t.categoria}</span>` : ''}
     </div>
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px">
       <div style="font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:.08em;margin-bottom:8px">📝 DESCRIÇÃO DO PROBLEMA</div>
       <div style="font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap">${t.descricao}</div>
     </div>
-    ${t.solucao ? `<div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:14px;margin-bottom:10px">
+    ${t.solucao ? `
+    <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:14px;margin-bottom:10px">
       <div style="font-size:10px;color:var(--green);font-family:var(--mono);letter-spacing:.08em;margin-bottom:8px">✅ SOLUÇÃO APLICADA</div>
       <div style="font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap">${t.solucao}</div>
     </div>` : ''}
@@ -513,55 +649,81 @@ function verDetalhes(docId) {
         <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:3px">ABERTO EM</div>
         <div style="font-size:11px;font-family:var(--mono);color:var(--text2)">${fmt(t.dataCriacao)}</div>
       </div>
-      ${t.dataInicio?`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
+      ${t.dataInicio ? `
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
         <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:3px">INICIADO</div>
         <div style="font-size:11px;font-family:var(--mono);color:var(--yellow)">${fmt(t.dataInicio)}${t.tecnicoInicio?' · '+t.tecnicoInicio:''}</div>
-      </div>`:''}
-      ${t.dataFim?`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
+      </div>` : ''}
+      ${t.dataFim ? `
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px">
         <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:3px">FINALIZADO</div>
         <div style="font-size:11px;font-family:var(--mono);color:var(--green)">${fmt(t.dataFim)}${t.tecnicoFim?' · '+t.tecnicoFim:''}</div>
-      </div>`:''}
+      </div>` : ''}
     </div>`;
   document.getElementById('modalDetalhes').classList.add('open');
 }
 window.verDetalhes = verDetalhes;
 
+// ─── Exportar CSV ─────────────────────────────────────────────
 function exportCSV() {
   const mes = document.getElementById('filterMesHist').value;
-  let t = allTickets.filter(x => x.status==='Finalizado');
-  if (mes) t = t.filter(x => x.mes===mes);
+  let t = allTickets.filter(x => x.status === 'Finalizado');
+  if (mes) t = t.filter(x => x.mes === mes);
   if (!t.length) { alert('Nenhum chamado para exportar.'); return; }
-  const header = ['ID','Nome','Email','WhatsApp','Setor','Tipo','Descricao','Solucao','Tecnico Responsavel','Data Abertura','Data Inicio','Data Fim','Mes'];
-  const rows = t.map(x=>[x.id,x.nome,x.email,x.whatsapp,x.setor,x.tipo,'"'+(x.descricao||'').replace(/"/g,'""')+'"','"'+(x.solucao||'').replace(/"/g,'""')+'"',x.tecnicoFim||x.tecnicoInicio||'—',fmt(x.dataCriacao),fmt(x.dataInicio),fmt(x.dataFim),x.mes]);
-  const csv = [header,...rows].map(r=>r.join(';')).join('\n');
-  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
-  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`chamados_${mes?mes.replace('/','_'):'todos'}.csv`; a.click();
+  const header = ['ID','Nome','Email','WhatsApp','Setor','Tipo','Categoria','Descricao','Solucao','Tecnico','Data Abertura','Data Inicio','Data Fim','Mes'];
+  const rows = t.map(x => [
+    x.id, x.nome, x.email, x.whatsapp, x.setor, x.tipo, x.categoria||'',
+    '"'+(x.descricao||'').replace(/"/g,'""')+'"',
+    '"'+(x.solucao||'').replace(/"/g,'""')+'"',
+    x.tecnicoFim||x.tecnicoInicio||'—',
+    fmt(x.dataCriacao), fmt(x.dataInicio), fmt(x.dataFim), x.mes
+  ]);
+  const csv = [header, ...rows].map(r => r.join(';')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `chamados_${mes ? mes.replace('/','_') : 'todos'}.csv`;
+  a.click();
   showToast('Exportação concluída!');
 }
 window.exportCSV = exportCSV;
 
+// ─── Navegação ────────────────────────────────────────────────
 function showPanel(name) {
-  ['tickets','andamento','historico','meses'].forEach(p=>{
-    document.getElementById('panel-'+p).classList.toggle('active',p===name);
-    document.getElementById('nav-'+p).classList.toggle('active',p===name);
+  ['tickets','andamento','historico','meses'].forEach(p => {
+    document.getElementById('panel-'+p).classList.toggle('active', p===name);
+    document.getElementById('nav-'+p).classList.toggle('active', p===name);
   });
-  const titles={tickets:'Chamados Novos',andamento:'Em Andamento',historico:'Histórico',meses:'Controle por Mês'};
-  document.getElementById('pageTitle').textContent=titles[name];
-  if(name==='historico') renderHistory();
-  if(name==='andamento') renderAndamento();
-  if(name==='meses') renderMonths();
+  const titles = {tickets:'Chamados Novos', andamento:'Em Andamento', historico:'Histórico', meses:'Controle por Mês'};
+  document.getElementById('pageTitle').textContent = titles[name];
+  if (name==='historico') renderHistory();
+  if (name==='andamento') renderAndamento();
+  if (name==='meses')     renderMonths();
 }
 window.showPanel = showPanel;
 
-function closeModal(id){document.getElementById(id).classList.remove('open');}
-window.closeModal=closeModal;
-document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+window.closeModal = closeModal;
+document.querySelectorAll('.modal-overlay').forEach(o =>
+  o.addEventListener('click', e => { if (e.target===o) o.classList.remove('open'); })
+);
 
-function showToast(msg){const t=document.getElementById('toast');t.textContent='✓ '+msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' '+type : '');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3500);
+}
 
-function logout(){sessionStorage.removeItem('admin_logged');sessionStorage.removeItem('admin_nome');window.location.href='login.html';}
-window.logout=logout;
+function logout() {
+  sessionStorage.removeItem('admin_logged');
+  sessionStorage.removeItem('admin_nome');
+  window.location.href = 'login.html';
+}
+window.logout = logout;
 
+// ─── Inicializa ───────────────────────────────────────────────
 loadAll();
 </script>
 </body>
