@@ -242,6 +242,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -249,6 +250,40 @@ import { getFirestore, collection, doc, updateDoc, deleteDoc, query, orderBy, on
 if (!sessionStorage.getItem('admin_logged')) window.location.href = 'login.html';
 const TECNICO = sessionStorage.getItem('admin_nome') || 'Desconhecido';
 document.getElementById('tecnicoNome').textContent = TECNICO;
+
+// ── EmailJS config ────────────────────────────────────────────
+const EJS_SERVICE_ID    = 'helpdesk_ti';
+const EJS_TPL_INICIAR   = 'wn7rc8m';
+const EJS_TPL_FINALIZAR = 'vg6zkhh';
+emailjs.init('uKHv3r_y1tBxz0O1k');
+
+async function enviarEmailInicio(ticket) {
+  try {
+    await emailjs.send(EJS_SERVICE_ID, EJS_TPL_INICIAR, {
+      to_email:  ticket.email,
+      nome:      ticket.nome,
+      tecnico:   TECNICO,
+      ticket_id: ticket.id,
+      tipo:      ticket.tipo,
+      descricao: ticket.descricao
+    });
+  } catch(e) { console.warn('E-mail início falhou:', e); }
+}
+
+async function enviarEmailFim(ticket, solucao) {
+  try {
+    await emailjs.send(EJS_SERVICE_ID, EJS_TPL_FINALIZAR, {
+      to_email:  ticket.email,
+      nome:      ticket.nome,
+      tecnico:   TECNICO,
+      ticket_id: ticket.id,
+      tipo:      ticket.tipo,
+      descricao: ticket.descricao,
+      solucao:   solucao
+    });
+  } catch(e) { console.warn('E-mail finalização falhou:', e); }
+}
+// ─────────────────────────────────────────────────────────────
 
 const firebaseConfig = {
   apiKey: "AIzaSyBkY4E7INOfY8RTRW47oqLVAxe1lrC4WUM",
@@ -407,6 +442,8 @@ window.filterByMonth = filterByMonth;
 async function iniciar(docId) {
   try {
     await updateDoc(doc(db,'tickets',docId), { status:'Em andamento', dataInicio:new Date().toISOString(), tecnicoInicio:TECNICO });
+    const ticket = allTickets.find(x => x._docId === docId);
+    if (ticket) await enviarEmailInicio(ticket);
     showToast('Chamado iniciado por ' + TECNICO + '!');
   } catch(e) { showToast('Erro ao iniciar.'); }
 }
@@ -425,6 +462,8 @@ async function confirmarFinalizar() {
   if (!sol) { alert('Descreva o que foi feito.'); return; }
   try {
     await updateDoc(doc(db,'tickets',finalizingId), { status:'Finalizado', solucao:sol, dataFim:new Date().toISOString(), tecnicoFim:TECNICO });
+    const ticket = allTickets.find(x => x._docId === finalizingId);
+    if (ticket) await enviarEmailFim(ticket, sol);
     closeModal('modalFinalizar');
     showToast('Chamado finalizado por ' + TECNICO + '!');
   } catch(e) { showToast('Erro ao finalizar.'); }
