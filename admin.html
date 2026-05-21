@@ -214,6 +214,7 @@
         <div class="panel-title">⚡ Chamados Em Andamento</div>
         <div class="filters">
           <input class="filter-input" type="text" id="searchAnd" placeholder="🔍 Buscar..." oninput="renderAndamento()">
+          <select class="filter-select" id="filterMesAnd" onchange="renderAndamento()"><option value="">Todos os meses</option></select>
           <button class="btn-refresh" onclick="loadAll()">🔄 Atualizar</button>
         </div>
       </div>
@@ -368,11 +369,23 @@ function updateStats() {
   bA.textContent=e; bA.classList.toggle('show',e>0);
 }
 
+function getMonthFromISO(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return `${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+
 function populateMonthSelect() {
   const sel=document.getElementById('filterMesHist'); const val=sel.value;
   sel.innerHTML='<option value="">Todos os meses</option>';
   getMonths().forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o);});
   if(val) sel.value=val;
+
+  const selAnd=document.getElementById('filterMesAnd'); const valAnd=selAnd.value;
+  const andMonths=[...new Set(allTickets.filter(x=>x.status==='Em andamento').map(x=>getMonthFromISO(x.dataInicio||x.dataCriacao)).filter(Boolean))].sort();
+  selAnd.innerHTML='<option value="">Todos os meses</option>';
+  andMonths.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;selAnd.appendChild(o);});
+  if(valAnd) selAnd.value=valAnd;
 }
 
 function renderTickets() {
@@ -398,8 +411,10 @@ window.renderTickets=renderTickets;
 
 function renderAndamento() {
   const search=document.getElementById('searchAnd').value.toLowerCase();
+  const mes=document.getElementById('filterMesAnd').value;
   let t=allTickets.filter(x=>x.status==='Em andamento');
   if(search) t=t.filter(x=>x.nome?.toLowerCase().includes(search)||x.id?.toLowerCase().includes(search));
+  if(mes) t=t.filter(x=>getMonthFromISO(x.dataInicio||x.dataCriacao)===mes);
   const tbody=document.getElementById('andamentoTable');
   if(!t.length){tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><div class="icon">📭</div>Nenhum chamado em andamento</div></td></tr>`;return;}
   tbody.innerHTML=t.map(x=>`<tr>
