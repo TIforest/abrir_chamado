@@ -112,7 +112,9 @@
   .month-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
   .btn-month { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--text2); cursor: pointer; transition: all 0.15s; }
   .btn-month:hover { border-color: var(--border2); color: var(--text); }
-  .btn-month.active { background: rgba(197,242,73,0.08); border-color: var(--accent); color: var(--accent); }
+  .btn-month.active { background: rgba(168,217,63,0.15); border-color: #a8d93f; color: #a8d93f; font-weight: 700; box-shadow: 0 0 8px rgba(168,217,63,0.2); }
+  .btn-download-month { display: flex; align-items: center; gap: 7px; padding: 7px 14px; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); border-radius: 8px; font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--green); cursor: pointer; transition: all 0.15s; }
+  .btn-download-month:hover { background: rgba(74,222,128,0.2); border-color: rgba(74,222,128,0.5); }
 
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
   .modal-overlay.open { display: flex; }
@@ -228,7 +230,7 @@
           <button class="btn-refresh" onclick="loadAll()">🔄 Atualizar</button>
         </div>
       </div>
-      <div class="table-wrap"><table><thead><tr><th>ID</th><th>Nome / Contato</th><th>Tipo</th><th>Setor</th><th>Solução</th><th>Técnico</th><th>Data Fim</th><th>Mês</th></tr></thead><tbody id="histTable"></tbody></table></div>
+      <div class="table-wrap"><table><thead><tr><th>ID</th><th>Nome / Contato</th><th>Tipo</th><th>Setor</th><th>Solução</th><th>Técnico</th><th>Data Fim</th><th>Mês</th><th></th></tr></thead><tbody id="histTable"></tbody></table></div>
     </div>
 
     <div class="panel" id="panel-meses">
@@ -310,6 +312,7 @@ async function enviarEmailFim(ticket, solucao) {
 
 let allTickets = [];
 let finalizingId = null;
+let mesesActiveMonth = null;
 
 function loadAll() {
   const q = query(collection(db, 'tickets'), orderBy('createdAt', 'asc'));
@@ -420,7 +423,7 @@ function renderHistory() {
   if(search) t=t.filter(x=>x.nome?.toLowerCase().includes(search)||x.id?.toLowerCase().includes(search));
   if(mes)    t=t.filter(x=>x.mes===mes);
   const tbody=document.getElementById('histTable');
-  if(!t.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="icon">📭</div>Nenhum chamado finalizado</div></td></tr>`;return;}
+  if(!t.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><div class="icon">📭</div>Nenhum chamado finalizado</div></td></tr>`;return;}
   tbody.innerHTML=t.map(x=>`<tr>
     <td class="td-id">${x.id}</td>
     <td><div class="td-name">${x.nome}</div><div class="td-sub">${x.email}</div></td>
@@ -430,16 +433,21 @@ function renderHistory() {
     <td><span style="font-size:12px;color:var(--green);font-family:var(--mono)">${x.tecnicoFim||'—'}</span></td>
     <td style="font-size:11px;color:var(--text3);font-family:var(--mono);white-space:nowrap">${fmt(x.dataFim)}</td>
     <td><span style="font-family:var(--mono);font-size:11px;color:var(--accent)">${x.mes}</span></td>
+    <td><button class="btn-action btn-ver" onclick="verDetalhes('${x._docId}')" title="Ver solicitação original">👁</button></td>
   </tr>`).join('');
 }
 window.renderHistory=renderHistory;
 
 function renderMonths() {
   const months=getMonths(); const cur=getCurrentMonth();
-  document.getElementById('monthControls').innerHTML=months.map(m=>`<button class="btn-month ${m===cur?'active':''}" onclick="filterByMonth('${m}')">${m}</button>`).join('');
-  const t=allTickets.filter(x=>x.mes===cur);
+  if(!mesesActiveMonth || !months.includes(mesesActiveMonth)) mesesActiveMonth=cur;
+  const active=mesesActiveMonth;
+  document.getElementById('monthControls').innerHTML=
+    months.map(m=>`<button class="btn-month ${m===active?'active':''}" onclick="selectMesAtivo('${m}')">${m}</button>`).join('')+
+    `<button class="btn-download-month" onclick="downloadMesCSV()">⬇️ Baixar ${active}</button>`;
+  const t=allTickets.filter(x=>x.mes===active);
   document.getElementById('monthStats').innerHTML=`
-    <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-family:var(--mono)">Mês atual: <span style="color:var(--accent)">${cur}</span></div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-family:var(--mono)">Mês selecionado: <span style="color:var(--accent)">${active}</span></div>
     <div style="display:flex;gap:12px;flex-wrap:wrap">
       <div class="stat-card" style="min-width:120px"><div class="stat-label">Chamados</div><div class="stat-val all">${t.length}</div></div>
       <div class="stat-card" style="min-width:120px"><div class="stat-label">Finalizados</div><div class="stat-val green">${t.filter(x=>x.status==='Finalizado').length}</div></div>
@@ -447,7 +455,21 @@ function renderMonths() {
     </div>`;
 }
 window.renderMonths=renderMonths;
-function filterByMonth(m){document.getElementById('filterMesHist').value=m;showPanel('historico');}
+function selectMesAtivo(m){mesesActiveMonth=m;renderMonths();}
+window.selectMesAtivo=selectMesAtivo;
+function downloadMesCSV(){
+  const mes=mesesActiveMonth||getCurrentMonth();
+  const t=allTickets.filter(x=>x.mes===mes);
+  if(!t.length){alert('Nenhum chamado para exportar em '+mes+'.');return;}
+  const header=['ID','Nome','Email','WhatsApp','Setor','Tipo','Descricao','Solucao','Tecnico','Data Abertura','Data Inicio','Data Fim','Mes'];
+  const rows=t.map(x=>[x.id,x.nome,x.email,x.whatsapp,x.setor,x.tipo,'"'+(x.descricao||'').replace(/"/g,'""')+'"','"'+(x.solucao||'').replace(/"/g,'""')+'"',x.tecnicoFim||x.tecnicoInicio||'—',fmt(x.dataCriacao),fmt(x.dataInicio),fmt(x.dataFim),x.mes]);
+  const csv=[header,...rows].map(r=>r.join(';')).join('\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`chamados_${mes.replace('/','_')}.csv`;a.click();
+  showToast('📥 Exportação de '+mes+' concluída!');
+}
+window.downloadMesCSV=downloadMesCSV;
+function filterByMonth(m){mesesActiveMonth=m;document.getElementById('filterMesHist').value=m;showPanel('historico');}
 window.filterByMonth=filterByMonth;
 
 async function iniciar(docId) {
